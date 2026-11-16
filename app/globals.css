@@ -16,13 +16,13 @@ body{
   background:var(--bg); color:var(--ink); font-family:var(--sans);
   font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased;
   background-image:
-    linear-gradient(rgba(73,221,146,.025) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(73,221,146,.025) 1px,transparent 1px);
-  background-size:52px 52px; min-height:100vh;
+    linear-gradient(rgba(73,221,146,.014) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(73,221,146,.014) 1px,transparent 1px);
+  background-size:64px 64px; min-height:100vh;
 }
 body::after{
   content:''; position:fixed; inset:0; pointer-events:none; z-index:999;
-  background:repeating-linear-gradient(0deg,rgba(255,255,255,.012) 0 1px,transparent 1px 3px);
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.007) 0 1px,transparent 1px 3px);
 }
 ::selection{background:var(--goLine); color:#fff}
 .wrap{max-width:1180px; margin:0 auto; padding:0 20px 90px}
@@ -49,12 +49,13 @@ nav{display:flex; gap:2px; border-bottom:1px solid var(--line); margin-bottom:20
 nav::-webkit-scrollbar{display:none}
 nav button{
   background:none; border:0; border-bottom:2px solid transparent; color:var(--ink3);
-  font-family:var(--mono); font-size:11px; letter-spacing:.11em; text-transform:uppercase;
-  padding:11px 14px; cursor:pointer; white-space:nowrap; display:flex; align-items:center; gap:7px;
+  font-family:var(--sans); font-size:14.5px; font-weight:500; letter-spacing:0;
+  padding:12px 2px; margin-right:26px; cursor:pointer; white-space:nowrap;
+  display:flex; align-items:center; gap:8px;
 }
 nav button:hover{color:var(--ink2)}
 nav button[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--go)}
-nav button .n{font-size:9.5px; color:var(--ink4); background:var(--panel2); border:1px solid var(--line); padding:1px 5px; border-radius:20px}
+nav button .n{font-family:var(--mono); font-size:10px; color:var(--ink4); background:var(--panel2); border:1px solid var(--line); padding:1px 6px; border-radius:20px}
 nav button[aria-selected="true"] .n{color:var(--go); border-color:var(--goLine); background:var(--goDim)}
 
 .panel{background:var(--panel); border:1px solid var(--line); border-radius:var(--r); margin-bottom:14px}
@@ -248,3 +249,113 @@ hr{border:0; border-top:1px solid var(--line); margin:14px 0}
   font-size:11px !important; color:var(--ink4) !important; line-height:1.5;
   margin:16px 0 0 !important; text-align:center;
 }
+
+/* ======================= v2: calmer, project-first ======================= */
+
+/* page header */
+.pagehead{margin:4px 0 18px}
+.pagehead h2{font-size:21px; font-weight:600; letter-spacing:-.02em; margin-bottom:4px}
+.pagehead p{margin:0; font-size:13px; color:var(--ink3)}
+
+/* section heading in plain english */
+.sect{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin:26px 0 10px}
+.sect h3{font-size:15px; font-weight:600; letter-spacing:-.01em}
+.sect .c{font-family:var(--mono); font-size:11px; color:var(--ink4)}
+.sect:first-child{margin-top:0}
+
+/* ---- up-next banner ---- */
+.upnext{
+  border:1px solid var(--goLine); border-radius:8px;
+  background:linear-gradient(180deg,rgba(73,221,146,.07),rgba(73,221,146,.02));
+  padding:18px 20px; margin-bottom:24px;
+}
+.upnext .eyebrow{font-family:var(--mono); font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--go); opacity:.8}
+.upnext h3{font-size:18px; font-weight:600; margin:6px 0 10px; letter-spacing:-.01em}
+.upnext .what{font-size:14.5px; line-height:1.55; color:var(--ink)}
+.upnext .where{font-size:12.5px; color:var(--ink2); margin-top:10px; border-left:2px solid var(--line3); padding-left:11px; white-space:pre-wrap}
+.upnext .acts{display:flex; gap:8px; margin-top:14px; flex-wrap:wrap}
+
+/* ---- project card ---- */
+.pj{border:1px solid var(--line); border-radius:8px; background:var(--panel); margin-bottom:10px; overflow:hidden}
+.pj.cold{border-color:var(--warnLine)}
+.pj-top{padding:14px 16px 0}
+.pj-title{display:flex; align-items:flex-start; justify-content:space-between; gap:12px}
+.pj-title h4{font-size:15.5px; font-weight:600; letter-spacing:-.01em; line-height:1.3}
+.pj-bar{display:flex; align-items:center; gap:10px; margin:11px 0 0}
+.pj-bar .track{flex:1; height:6px; background:var(--panel3); border-radius:4px; overflow:hidden}
+.pj-bar .track i{display:block; height:100%; background:var(--go); transition:width .25s}
+.pj-bar .count{font-family:var(--mono); font-size:11px; color:var(--ink3); white-space:nowrap}
+.pj-next{
+  display:flex; gap:10px; align-items:flex-start; margin:13px 0 0;
+  background:var(--panel2); border:1px solid var(--line); border-radius:6px; padding:10px 12px;
+}
+.pj-next .k{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink4); padding-top:4px; white-space:nowrap}
+.pj-next input{border:0; background:transparent; padding:2px 0; font-size:14px}
+.pj-body{padding:0 16px 14px}
+.pj-foot{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px 16px; border-top:1px solid var(--line); background:var(--panel2);
+}
+.pj-foot .when{font-family:var(--mono); font-size:11px; color:var(--ink4)}
+.pj-foot .when.warn{color:var(--warn)}
+
+/* ---- task line ---- */
+.tl{display:flex; align-items:center; gap:10px; padding:7px 0}
+.tl + .tl{border-top:1px dashed var(--line)}
+.tl input[type=text]{border:0; background:transparent; padding:3px 0; font-size:13.5px}
+.tl.done input[type=text]{color:var(--ink4); text-decoration:line-through}
+.tl .x{opacity:0; transition:.12s}
+.tl:hover .x{opacity:1}
+.tl .from{font-family:var(--mono); font-size:10px; color:var(--ink4); white-space:nowrap}
+.addtask{display:flex; gap:8px; align-items:center; margin-top:8px}
+.addtask input{font-size:13.5px; padding:7px 10px}
+
+/* ---- idea line (backlog) ---- */
+.il{
+  display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center;
+  border:1px solid var(--line); border-radius:7px; background:var(--panel);
+  padding:12px 14px; margin-bottom:6px; cursor:pointer; transition:.12s;
+}
+.il:hover{border-color:var(--line3); background:var(--panel2)}
+.il.open{border-color:var(--goLine); border-bottom-left-radius:0; border-bottom-right-radius:0; margin-bottom:0}
+.il h4{font-size:14.5px; font-weight:500; letter-spacing:-.005em; margin-bottom:3px}
+.il .sub{font-size:12.5px; color:var(--ink3); line-height:1.45}
+.il .rank{display:flex; align-items:center; gap:10px}
+.il .rank .p{font-family:var(--mono); font-size:13px; color:var(--ink3); text-align:right}
+.il .rank .p b{display:block; font-size:15px; font-weight:500; color:var(--ink2)}
+.il .rank .p span{font-size:8.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink4)}
+
+/* ---- disclosure ---- */
+.disc{border-top:1px solid var(--line); margin-top:14px; padding-top:12px}
+.disc > summary{
+  cursor:pointer; list-style:none; font-family:var(--mono); font-size:10.5px;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--ink3);
+  display:flex; align-items:center; gap:7px; user-select:none;
+}
+.disc > summary::-webkit-details-marker{display:none}
+.disc > summary::before{content:'+'; font-size:13px; line-height:1; color:var(--ink4)}
+.disc[open] > summary::before{content:'–'}
+.disc > summary:hover{color:var(--ink2)}
+.disc .inner{padding-top:14px}
+
+/* ---- add bar ---- */
+.addbar{
+  display:flex; gap:9px; align-items:center; margin-bottom:18px;
+  border:1px solid var(--line2); border-radius:8px; background:var(--panel); padding:9px 11px;
+}
+.addbar input{border:0; background:transparent; font-size:14.5px; padding:4px 0}
+.addbar input::placeholder{color:var(--ink4)}
+
+/* calmer empty state */
+.quiet{
+  text-align:center; padding:30px 18px; color:var(--ink4); font-size:13.5px;
+  border:1px dashed var(--line2); border-radius:8px;
+}
+.quiet b{display:block; color:var(--ink2); font-size:15px; margin-bottom:6px; font-weight:500}
+.hint{font-size:12.5px; color:var(--ink4); line-height:1.6}
+
+/* shipped row */
+.ship{display:flex; justify-content:space-between; align-items:center; gap:12px; padding:11px 0}
+.ship + .ship{border-top:1px dashed var(--line)}
+.ship h4{font-size:14px; font-weight:500}
+.ship .m{font-family:var(--mono); font-size:11px; color:var(--ink4)}

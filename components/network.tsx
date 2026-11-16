@@ -65,7 +65,12 @@ export function Network() {
   }
 
   return (
-    <div className="split">
+    <>
+      <div className="pagehead">
+        <h2>People</h2>
+        <p>Who to reach out to, and what to show them.</p>
+      </div>
+      <div className="split">
       <Panel
         label="Pipeline"
         right={
@@ -181,23 +186,21 @@ export function Network() {
           <button className="btn go" onClick={add} disabled={busy || !f.name.trim()}>Add to pipeline</button>
         </Panel>
 
-        <Panel label="Why this sits next to your ideas">
-          <div className="note">
-            Cold outreach with nothing attached is the hard version. Outreach with{' '}
-            <b>“I built this in your space, one question”</b> is the easy version — so every row here
-            links to something on your shelf.
+        <Panel label="How to work this">
+          <div className="hint">
+            Outreach with <b>“I built this in your space, one question”</b> beats a cold hello,
+            so every row links to something you shipped.
             <hr />
-            <b>A cadence that works without being annoying:</b><br />
             day 0 — first message, one specific ask<br />
-            day 5 — one follow-up, add something new (a link, a finding)<br />
-            day 20 — no reply? value ping, no ask. Then stop.<br />
-            after a good chat — next touch in 3 weeks with what you did about their advice. That is
-            what turns a chat into a contact.
+            day 5 — one follow-up with something new<br />
+            day 20 — no reply? one value ping, then stop<br />
+            after a good chat — come back in 3 weeks with what you did about their advice
             <hr />
-            <b>Volume target:</b> 3 new people a week beats 20 in one burst you never follow up on.
+            Three new people a week beats twenty in one burst you never follow up on.
           </div>
         </Panel>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

@@ -21,7 +21,7 @@ type Store = {
   createIdea: (p: Partial<Idea>) => Promise<Idea | null>;
   patchIdea: (id: string, p: Partial<Idea>, o?: Opts) => void;
   deleteIdea: (id: string) => void;
-  touchIdea: (id: string) => void;
+  touchIdea: (id: string, quiet?: boolean) => void;
   addTask: (ideaId: string | null, title: string) => void;
   patchTask: (id: number, p: Partial<Task>, o?: Opts) => void;
   deleteTask: (id: number) => void;
@@ -137,7 +137,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     send(`/api/ideas/${id}`, 'DELETE');
   }, [send]);
 
-  const touchIdea = useCallback((id: string) => {
+  const touchIdea = useCallback((id: string, quiet?: boolean) => {
     const patch: Partial<Idea> = { touched_at: new Date().toISOString() };
     setIdeas(prev => prev.map(i => {
       if (i.id !== id) return i;
@@ -145,7 +145,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       return { ...i, ...patch };
     }));
     send(`/api/ideas/${id}`, 'PATCH', patch);
-    say('Marked touched — clock reset');
+    if (!quiet) say('Marked as worked on today');
   }, [send, say]);
 
   const addTask = useCallback(async (ideaId: string | null, title: string) => {

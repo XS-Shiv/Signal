@@ -2,27 +2,24 @@
 
 import { useEffect, useState } from 'react';
 import { StoreProvider, useStore } from './store';
-import { Board, Flight, PickUp, Priority, Review } from './views';
-import { Capture } from './capture';
+import { Projects } from './projects';
+import { Ideas } from './ideas';
+import { Review } from './review';
 import { Network } from './network';
 import { isLive, isStale } from '@/lib/score';
 
 const TABS = [
-  ['now', 'Pick up'],
-  ['capture', 'Capture'],
-  ['priority', 'Priority'],
-  ['board', 'Board'],
-  ['flight', 'In flight'],
-  ['network', 'Network'],
+  ['projects', 'Projects'],
+  ['ideas', 'Ideas'],
+  ['people', 'People'],
   ['review', 'Review']
 ] as const;
 
 function Shell() {
   const s = useStore();
-  const [view, setView] = useState<string>('now');
+  const [view, setView] = useState<string>('projects');
   const [openId, setOpenId] = useState<string | null>(null);
 
-  // remember the tab between visits
   useEffect(() => {
     try {
       const v = localStorage.getItem('signal.view');
@@ -47,13 +44,13 @@ function Shell() {
       if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === 'n') {
         e.preventDefault();
-        go('capture');
+        go('ideas');
         setTimeout(() => document.getElementById('capture-title')?.focus(), 40);
         return;
       }
       if (e.key === '/') {
         e.preventDefault();
-        go('board');
+        go('ideas');
         setTimeout(() => document.getElementById('board-search')?.focus(), 40);
         return;
       }
@@ -65,20 +62,12 @@ function Shell() {
   }, [openId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const live = s.ideas.filter(isLive);
-  const stats: [string, number][] = [
-    ['live', live.length],
-    ['building', s.ideas.filter(o => o.status === 'building').length],
-    ['shipped', s.ideas.filter(o => o.status === 'shipped').length],
-    ['cold', live.filter(o => isStale(o, s.weights)).length]
-  ];
+  const cold = live.filter(o => isStale(o, s.weights)).length;
   const counts: Record<string, number> = {
-    priority: live.length,
-    board: s.ideas.length,
-    flight: s.ideas.filter(o => o.status === 'building').length,
-    network: s.people.length
+    projects: s.ideas.filter(o => o.status === 'building').length,
+    ideas: live.length,
+    people: s.people.length
   };
-
-  const props = { openId, setOpenId, go };
 
   return (
     <>
@@ -89,17 +78,21 @@ function Shell() {
             <div className="mark"><i /></div>
             <div>
               <h1>SIGNAL</h1>
-              <p>idea capture → priority → ship. one place, no lost notes.</p>
+              <p>capture it, rank it, ship it.</p>
             </div>
           </div>
-          <div className="hstat">
-            {stats.map(([l, n]) => (
-              <div key={l}>
-                <b style={{ color: l === 'cold' && n ? 'var(--warn)' : 'var(--ink)' }}>{n}</b>
-                <span>{l}</span>
+          {!s.loading && (
+            <div className="hstat">
+              <div>
+                <b>{counts.projects}</b>
+                <span>in progress</span>
               </div>
-            ))}
-          </div>
+              <div>
+                <b style={{ color: cold ? 'var(--warn)' : 'var(--ink)' }}>{cold}</b>
+                <span>going cold</span>
+              </div>
+            </div>
+          )}
         </header>
 
         {s.error && (
@@ -112,29 +105,21 @@ function Shell() {
 
         <nav role="tablist">
           {TABS.map(([v, l]) => (
-            <button
-              key={v}
-              role="tab"
-              aria-selected={view === v}
-              onClick={() => go(v)}
-            >
+            <button key={v} role="tab" aria-selected={view === v} onClick={() => go(v)}>
               {l}
-              {counts[v] !== undefined && <span className="n">{counts[v]}</span>}
+              {counts[v] !== undefined && counts[v] > 0 && <span className="n">{counts[v]}</span>}
             </button>
           ))}
         </nav>
 
         {s.loading ? (
-          <div className="empty"><b>Loading</b>Reading the board.</div>
+          <div className="quiet"><b>Loading</b>Reading your board.</div>
         ) : (
           <>
-            {view === 'now' && <PickUp {...props} />}
-            {view === 'capture' && <Capture setOpenId={setOpenId} go={go} />}
-            {view === 'priority' && <Priority {...props} />}
-            {view === 'board' && <Board {...props} />}
-            {view === 'flight' && <Flight {...props} />}
-            {view === 'network' && <Network />}
-            {view === 'review' && <Review {...props} />}
+            {view === 'projects' && <Projects setOpenId={setOpenId} go={go} />}
+            {view === 'ideas' && <Ideas openId={openId} setOpenId={setOpenId} />}
+            {view === 'people' && <Network />}
+            {view === 'review' && <Review setOpenId={setOpenId} go={go} />}
           </>
         )}
       </div>
