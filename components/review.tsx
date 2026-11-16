@@ -5,9 +5,9 @@ import { Panel, Range } from './ui';
 import { DEFAULT_WEIGHTS, Idea, SLOTS, Weights } from '@/lib/types';
 import { daysSince, isLive, isStale, unfinished } from '@/lib/score';
 
-type V = { setOpenId: (id: string | null) => void; go: (v: string) => void };
+import Link from 'next/link';
 
-export function Review({ setOpenId, go }: V) {
+export function Review() {
   const s = useStore();
   const { ideas, people, weights } = s;
   const live = ideas.filter(isLive);
@@ -72,7 +72,7 @@ export function Review({ setOpenId, go }: V) {
           {(unf.length || cold.length || old.length) ? (
             <>
               {block('Needs a next step', unf, o => (
-                <button className="btn sm go" onClick={() => { go('ideas'); setOpenId(o.id); }}>Open</button>
+                <Link className="btn sm go" href={`/i/${o.id}`}>Open</Link>
               ))}
               {block('Going cold', cold, o => (
                 <>

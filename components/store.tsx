@@ -3,7 +3,7 @@
 import {
   createContext, useCallback, useContext, useEffect, useRef, useState
 } from 'react';
-import { DEFAULT_WEIGHTS, Idea, Person, Task, Weights } from '@/lib/types';
+import { Capture, DEFAULT_WEIGHTS, Idea, Person, Task, Weights } from '@/lib/types';
 
 type Opts = { debounce?: boolean };
 
@@ -11,6 +11,7 @@ type Store = {
   ideas: Idea[];
   people: Person[];
   looseTasks: Task[];
+  captures: Capture[];
   weights: Weights;
   gated: boolean;
   loading: boolean;
@@ -29,6 +30,8 @@ type Store = {
   patchPerson: (id: string, p: Partial<Person>, o?: Opts) => void;
   deletePerson: (id: string) => void;
   setWeights: (w: Weights) => void;
+  patchCapture: (id: string, text: string) => void;
+  triage: (id: string, body: Record<string, unknown>) => Promise<boolean>;
 };
 
 const Ctx = createContext<Store | null>(null);
@@ -45,6 +48,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [ideas, setIdeas] = useState<Idea[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
   const [looseTasks, setLooseTasks] = useState<Task[]>([]);
+  const [captures, setCaptures] = useState<Capture[]>([]);
   const [weights, setW] = useState<Weights>(DEFAULT_WEIGHTS);
   const [gated, setGated] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -70,6 +74,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setIdeas(body.ideas ?? []);
       setPeople(body.people ?? []);
       setLooseTasks(body.looseTasks ?? []);
+      setCaptures(body.captures ?? []);
       setW({ ...DEFAULT_WEIGHTS, ...(body.weights ?? {}) });
       setGated(!!body.gated);
       setError(null);
@@ -191,18 +196,32 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     send(`/api/people/${id}`, 'DELETE');
   }, [send]);
 
+  const patchCapture = useCallback((id: string, text: string) => {
+    setCaptures(prev => prev.map(c => (c.id === id ? { ...c, text } : c)));
+    push(`capture:${id}`, `/api/captures/${id}`, { text }, true);
+  }, [push]);
+
+  /** One capture leaves the inbox as exactly one outcome. */
+  const triage = useCallback(async (id: string, body: Record<string, unknown>) => {
+    setCaptures(prev => prev.filter(c => c.id !== id));
+    const out = await send(`/api/captures/${id}`, 'POST', body);
+    if (!out?.ok) { load(); return false; }
+    await load();
+    return true;
+  }, [send, load]);
+
   const setWeights = useCallback((w: Weights) => {
     setW(w);
     push('settings', '/api/settings', w as unknown as Record<string, unknown>, true);
   }, [push]);
 
   const value: Store = {
-    ideas, people, looseTasks, weights, gated, loading, error, toast,
+    ideas, people, looseTasks, captures, weights, gated, loading, error, toast,
     say, reload: load,
     createIdea, patchIdea, deleteIdea, touchIdea,
     addTask, patchTask, deleteTask,
     createPerson, patchPerson, deletePerson,
-    setWeights
+    setWeights, patchCapture, triage
   };
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

@@ -1,12 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useStore } from './store';
-import { IdeaLine } from './idea';
 import { Idea, SLOTS, STATUSES, Status, slotLabel, statusLabel } from '@/lib/types';
-import { effortBand, isLive, isStale, score, unfinished } from '@/lib/score';
-
-type V = { openId: string | null; setOpenId: (id: string | null) => void };
+import { daysSince, effortBand, isLive, isStale, score, unfinished } from '@/lib/score';
 
 const GROUPS: [string, string][] = [
   ['none', 'no grouping'], ['status', 'status'], ['type', 'type'],
@@ -17,7 +15,7 @@ const SORTS: [string, string][] = [
   ['effort', 'quickest first'], ['created', 'newest']
 ];
 
-export function Ideas({ openId, setOpenId }: V) {
+export function IdeasPage() {
   const s = useStore();
   const [title, setTitle] = useState('');
   const [why, setWhy] = useState('');
@@ -201,12 +199,23 @@ export function Ideas({ openId, setOpenId }: V) {
             </div>
           )}
           {b.items.map(o => (
-            <IdeaLine
-              key={o.id}
-              idea={o}
-              open={openId === o.id}
-              onToggle={() => setOpenId(openId === o.id ? null : o.id)}
-            />
+            <Link href={`/i/${o.id}`} className="il" key={o.id}>
+              <div>
+                <h4>{o.title || 'untitled'}</h4>
+                <div className="sub">
+                  {o.next_action || <span style={{ color: 'var(--warn)' }}>No next step yet</span>}
+                </div>
+                <div className="sub" style={{ color: 'var(--ink4)', marginTop: 3 }}>
+                  {[statusLabel(o.status), o.type].join(' \u00b7 ')}
+                  {isStale(o, s.weights) && (
+                    <span style={{ color: 'var(--warn)' }}> \u00b7 untouched {daysSince(o.touched_at)} days</span>
+                  )}
+                </div>
+              </div>
+              <div className="rank">
+                <div className="p"><b>{score(o, s.weights)}</b><span>priority</span></div>
+              </div>
+            </Link>
           ))}
         </div>
       ))}

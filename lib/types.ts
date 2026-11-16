@@ -82,6 +82,18 @@ export type Idea = {
   tasks: Task[];
 };
 
+export type Capture = {
+  id: string;
+  text: string;
+  audio_b64: string | null;
+  source: 'voice' | 'typed' | 'audio';
+  status: 'inbox' | 'triaged' | 'dropped';
+  outcome: string | null;
+  idea_id: string | null;
+  created_at: string;
+  triaged_at: string | null;
+};
+
 export type Person = {
   id: string;
   name: string;
@@ -107,7 +119,7 @@ export const DEFAULT_WEIGHTS: Weights = {
   wP: 1.4, wE: 1.5, wR: 1.1, wL: 0.7, wEff: 0.7, staleDays: 14
 };
 
-export type Payload = { ideas: Idea[]; people: Person[]; weights: Weights };
+export type Payload = { ideas: Idea[]; people: Person[]; captures: Capture[]; weights: Weights };
 
 export const statusLabel = (k: string) => STATUSES.find(s => s.k === k)?.l ?? k;
 export const slotLabel = (k: string) => SLOTS.find(s => s.k === k)?.l ?? k;

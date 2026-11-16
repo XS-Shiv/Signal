@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { DEFAULT_WEIGHTS, Idea, Person, Task, Weights } from '@/lib/types';
+import { Capture, DEFAULT_WEIGHTS, Idea, Person, Task, Weights } from '@/lib/types';
 import { configuredPhrase } from '@/lib/token';
 
 export const dynamic = 'force-dynamic';
@@ -9,11 +9,12 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const sb = db();
-    const [ideasRes, tasksRes, peopleRes, settingsRes] = await Promise.all([
+    const [ideasRes, tasksRes, peopleRes, settingsRes, capturesRes] = await Promise.all([
       sb.from('ideas').select('*').order('created_at', { ascending: false }),
       sb.from('tasks').select('*').order('position').order('id'),
       sb.from('people').select('*').order('created_at'),
-      sb.from('settings').select('weights').eq('id', 1).maybeSingle()
+      sb.from('settings').select('weights').eq('id', 1).maybeSingle(),
+      sb.from('captures').select('*').eq('status', 'inbox').order('created_at', { ascending: false })
     ]);
 
     const err = ideasRes.error || tasksRes.error || peopleRes.error;
@@ -40,6 +41,7 @@ export async function GET() {
       ideas,
       people: (peopleRes.data ?? []) as Person[],
       looseTasks: loose,
+      captures: (capturesRes.data ?? []) as Capture[],
       weights,
       gated: !!configuredPhrase()
     });

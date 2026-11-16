@@ -1,7 +1,8 @@
-import App from '@/components/App';
+import { Shell } from '@/components/Shell';
+import { Home } from '@/components/home';
 
 export const dynamic = 'force-dynamic';
 
 export default function Page() {
-  return <App />;
+  return <Shell><Home /></Shell>;
 }
