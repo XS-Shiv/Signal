@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { DEFAULT_WEIGHTS, Idea, Person, Task, Weights } from '@/lib/types';
+import { configuredPhrase } from '@/lib/token';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,7 +40,8 @@ export async function GET() {
       ideas,
       people: (peopleRes.data ?? []) as Person[],
       looseTasks: loose,
-      weights
+      weights,
+      gated: !!configuredPhrase()
     });
   } catch (e) {
     return NextResponse.json({ error: (e as Error).message }, { status: 500 });

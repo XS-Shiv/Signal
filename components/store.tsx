@@ -12,6 +12,7 @@ type Store = {
   people: Person[];
   looseTasks: Task[];
   weights: Weights;
+  gated: boolean;
   loading: boolean;
   error: string | null;
   toast: string | null;
@@ -45,6 +46,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [people, setPeople] = useState<Person[]>([]);
   const [looseTasks, setLooseTasks] = useState<Task[]>([]);
   const [weights, setW] = useState<Weights>(DEFAULT_WEIGHTS);
+  const [gated, setGated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -69,6 +71,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       setPeople(body.people ?? []);
       setLooseTasks(body.looseTasks ?? []);
       setW({ ...DEFAULT_WEIGHTS, ...(body.weights ?? {}) });
+      setGated(!!body.gated);
       setError(null);
     } catch (e) {
       setError((e as Error).message);
@@ -194,7 +197,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, [push]);
 
   const value: Store = {
-    ideas, people, looseTasks, weights, loading, error, toast,
+    ideas, people, looseTasks, weights, gated, loading, error, toast,
     say, reload: load,
     createIdea, patchIdea, deleteIdea, touchIdea,
     addTask, patchTask, deleteTask,

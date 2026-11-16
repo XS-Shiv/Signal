@@ -651,6 +651,12 @@ export function Review({ setOpenId, go }: V) {
             <p className="note" style={{ marginTop: 0 }}>
               Everything lives in your Supabase project, so Claude can read and write it from chat.
               Tell Claude an idea and it is on the board before you open the site.
+              {!s.gated && (
+                <>
+                  {' '}This site is currently <b>open to anyone with the link</b> — set{' '}
+                  <code className="mono">SIGNAL_VOICE_PHRASE</code> to lock it behind the phrase.
+                </>
+              )}
             </p>
             <div className="btnrow">
               <button className="btn" onClick={() => {
@@ -659,10 +665,12 @@ export function Review({ setOpenId, go }: V) {
                   () => s.say('Copied as JSON'), () => s.say('Could not copy'));
               }}>Copy JSON</button>
               <button className="btn" onClick={() => s.reload()}>Refresh from database</button>
-              <button className="btn stopb" onClick={async () => {
-                await fetch('/api/auth', { method: 'DELETE' });
-                window.location.href = '/unlock';
-              }}>Lock</button>
+              {s.gated && (
+                <button className="btn stopb" onClick={async () => {
+                  await fetch('/api/auth', { method: 'DELETE' });
+                  window.location.href = '/unlock';
+                }}>Lock</button>
+              )}
             </div>
           </Panel>
           <Panel label="Shortcuts">

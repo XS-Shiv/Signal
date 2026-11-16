@@ -1,26 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { sameToken, tokenFor } from '@/lib/token';
+import { configuredPhrase, sameToken, tokenFor } from '@/lib/token';
 
 const COOKIE = 'signal_key';
 
 /**
- * Everything is behind the passcode except the unlock page itself and the
- * endpoint that checks the passcode.
+ * The gate is opt-in. With no SIGNAL_VOICE_PHRASE set the site is open to
+ * anyone who has the URL; set one and every route needs the unlock cookie.
  */
 export async function middleware(req: NextRequest) {
+  const phrase = configuredPhrase();
+  if (!phrase) return NextResponse.next();
+
   const { pathname } = req.nextUrl;
   if (pathname === '/unlock' || pathname === '/api/auth') return NextResponse.next();
 
-  const expected = process.env.SIGNAL_PASSCODE;
-  // Not configured yet: let the unlock page explain rather than hard-failing.
-  if (!expected) {
-    if (pathname.startsWith('/api/')) {
-      return NextResponse.json({ error: 'SIGNAL_PASSCODE is not set' }, { status: 503 });
-    }
-    return NextResponse.redirect(new URL('/unlock?setup=1', req.url));
-  }
-
-  if (sameToken(req.cookies.get(COOKIE)?.value, await tokenFor(expected))) {
+  if (sameToken(req.cookies.get(COOKIE)?.value, await tokenFor(phrase))) {
     return NextResponse.next();
   }
 

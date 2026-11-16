@@ -33,28 +33,56 @@ Scoring: `(portfolio×w + pull×w + reach×w + learning×w) ÷ effort^w`, scaled
 - Row Level Security is **on with no policies**, so the publishable/anon key
   can reach nothing. Only the service-role key (server-side) or the Supabase
   dashboard can touch the data.
-- A single passcode gates the whole site. The cookie stores a SHA-256 hash of
-  the passcode, never the passcode itself.
+- Access is **opt-in**: with no `SIGNAL_VOICE_PHRASE` set the site is open to
+  anyone with the link. Set one and every route requires the unlock phrase,
+  spoken or typed. The cookie stores a SHA-256 hash of the phrase, never the
+  phrase itself.
 
 ## Environment variables
 
 Copy `.env.example` to `.env.local` for local work, and set the same three in
 Vercel → Settings → Environment Variables.
 
-| Variable | Where it comes from |
-| --- | --- |
-| `SUPABASE_URL` | `https://kmpkckqkkneaeingyxho.supabase.co` |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase dashboard → Project Settings → API Keys → `service_role`. Secret. |
-| `SIGNAL_PASSCODE` | Anything you'll remember. This is the site's password. |
+| Variable | Required | Where it comes from |
+| --- | --- | --- |
+| `SUPABASE_URL` | yes | `https://kmpkckqkkneaeingyxho.supabase.co` |
+| `SUPABASE_SERVICE_ROLE_KEY` | yes | Supabase dashboard → Project Settings → API Keys → `service_role`. Secret. |
+| `SIGNAL_VOICE_PHRASE` | no | A short phrase to unlock the site. Unset = no gate. |
 
-If a variable is missing the app says so on screen rather than failing silently.
+If a Supabase variable is missing the app says so on screen rather than
+failing silently.
+
+## Voice unlock
+
+Set `SIGNAL_VOICE_PHRASE` to a few words — `open the workshop` beats `4471`,
+because speech recognition transcribes words far more reliably than digits.
+Then `/unlock` shows a mic button: tap it, say the phrase, and you are in.
+
+- Both sides are flattened to letters, digits and single spaces before they
+  are compared, so punctuation and capitalisation never matter.
+- Up to three recognition alternatives per utterance are checked, because the
+  right words often land in the second guess.
+- Typing the phrase always works as a fallback, and is the only option in
+  Firefox, which has no Web Speech API.
+- Chrome sends the audio to Google's speech service to transcribe it.
+
+**What this is not:** it checks *what* is said, not *who* says it. Browsers
+cannot verify a speaker, and a recording would defeat anything that claimed
+to. Treat it as a password you say out loud. If you want protection that does
+not depend on a shared secret, Vercel's Deployment Protection gates the site
+behind your own Vercel login instead — no code, though production coverage
+depends on your plan.
 
 ## Deploying
 
 1. vercel.com → Add New → Project → import `XS-Shiv/signal`.
-2. Add the three environment variables above (all three environments).
+2. Add the two required environment variables above (tick Production, Preview
+   and Development). Add `SIGNAL_VOICE_PHRASE` too if you want the gate.
 3. Deploy. Nothing else to configure — framework, build command and output are
    detected automatically.
+
+Environment variables only reach a **new** build, so after changing one, go to
+Deployments → the top one → ⋯ → Redeploy.
 
 Pushing to `main` redeploys.
 

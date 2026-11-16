@@ -1,24 +1,43 @@
 import { NextResponse } from 'next/server';
 import { COOKIE } from '@/lib/db';
-import { tokenFor } from '@/lib/token';
+import { configuredPhrase, normalizePhrase, tokenFor } from '@/lib/token';
+
+/** Speech recognition is fuzzy, so a few alternatives per utterance are allowed. */
+const MAX_ALTERNATIVES = 3;
+
+export async function GET() {
+  // Lets the unlock page tell "no gate configured" from "say the phrase".
+  return NextResponse.json({ gated: !!configuredPhrase() });
+}
 
 export async function POST(req: Request) {
-  const expected = process.env.SIGNAL_PASSCODE;
-  if (!expected) {
-    return NextResponse.json({ error: 'SIGNAL_PASSCODE is not set on the server' }, { status: 503 });
+  const phrase = configuredPhrase();
+  if (!phrase) {
+    return NextResponse.json({ error: 'No phrase is configured — the site is open' }, { status: 503 });
   }
-  let passcode = '';
+
+  let tries: string[] = [];
   try {
     const body = await req.json();
-    passcode = typeof body?.passcode === 'string' ? body.passcode : '';
+    if (typeof body?.phrase === 'string') tries = [body.phrase];
+    else if (Array.isArray(body?.alternatives)) {
+      tries = body.alternatives.filter((x: unknown) => typeof x === 'string');
+    }
   } catch {
     return NextResponse.json({ error: 'bad request' }, { status: 400 });
   }
-  if (passcode !== expected) {
-    return NextResponse.json({ error: 'Wrong passcode' }, { status: 401 });
+
+  tries = tries.slice(0, MAX_ALTERNATIVES);
+  if (!tries.length) return NextResponse.json({ error: 'Nothing heard' }, { status: 400 });
+
+  const want = normalizePhrase(phrase);
+  const hit = tries.some(t => normalizePhrase(t) === want);
+  if (!hit) {
+    return NextResponse.json({ error: 'That is not the phrase' }, { status: 401 });
   }
+
   const res = NextResponse.json({ ok: true });
-  res.cookies.set(COOKIE, await tokenFor(expected), {
+  res.cookies.set(COOKIE, await tokenFor(phrase), {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
